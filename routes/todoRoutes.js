@@ -4,6 +4,9 @@ const cookieParser = require('cookie-parser');
 const todoController = require('../controller/todoController');
 const { isAuthenticated } = require('../middleware/authMiddleware');
 
+// API endpoint to get all todos for the current user
+router.get('/api/todos', isAuthenticated, todoController.getAllTodos);
+
 // Route to get todos for today (default) or a specific date
 router.get('/:date?', isAuthenticated, todoController.getTodosByDate);
 

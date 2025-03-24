@@ -19,12 +19,14 @@
         <div class="site-title">
             Your To-Do List App
         </div>
-        <!-- Update the nav-right div in the header.ejs file -->
         <div class="nav-right">
             <% if (locals.isAuthenticated) { %>
-                <a href="/"><i class="fas fa-tasks"></i> My Todos</a> |
-                <a href="/Profile"><i class="fas fa-user"></i> Profile</a> |
-                <a href="/confirm-logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                <a href="/"><i class="fas fa-tasks"></i> Today's Todos</a> |
+                <a href="/Profile"><i class="fas fa-user"></i> My Todos</a>
+                <% if (locals.isAdmin) { %>
+                 | <a href="/all-todos"><i class="fas fa-list"></i> All Todos</a>
+                <% } %>
+                 | <a href="/confirm-logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
             <% } else { %>
                 <a href="/sign-in"><i class="fas fa-sign-in-alt"></i> Sign in</a> |
                 <a href="/sign-up"><i class="fas fa-user-plus"></i> Sign up</a>

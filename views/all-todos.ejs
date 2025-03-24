@@ -1,0 +1,163 @@
+<%- include('./partials/header') %>
+
+<div class="all-todos-container">
+    <h1>All Todos</h1>
+    
+    <div class="admin-nav">
+        <a href="/" class="btn">Today's Todos</a>
+        <a href="/Profile" class="btn">My Todos</a>
+    </div>
+    
+    <div class="todos-list-container">
+        <% if (todos.length === 0) { %>
+            <p>No todos have been created yet.</p>
+        <% } else { %>
+            <div class="filter-controls">
+                <button class="btn btn-small filter-btn active" data-filter="all">All</button>
+                <button class="btn btn-small filter-btn" data-filter="pending">Pending</button>
+                <button class="btn btn-small filter-btn" data-filter="completed">Completed</button>
+            </div>
+            
+            <table class="todos-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% todos.forEach(todo => { %>
+                        <tr class="todo-row <%= todo.completed ? 'completed' : 'pending' %>">
+                            <td class="todo-title-cell">
+                                <div class="todo-title"><%= todo.title %></div>
+                                <% if (todo.description) { %>
+                                    <div class="todo-description"><%= todo.description %></div>
+                                <% } %>
+                            </td>
+                            <td><%= todo.user ? todo.user.navn : 'Unknown' %></td>
+                            <td><%= new Date(todo.date).toLocaleDateString() %></td>
+                            <td>
+                                <span class="status-badge <%= todo.completed ? 'completed' : 'pending' %>">
+                                    <%= todo.completed ? 'Completed' : 'Pending' %>
+                                </span>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+</div>
+
+<style>
+    .all-todos-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .admin-nav {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .filter-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-btn {
+        background-color: #f1f1f1;
+        color: #333;
+    }
+    
+    .filter-btn.active {
+        background-color: #4a90e2;
+        color: white;
+    }
+    
+    .todos-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .todos-table th, .todos-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .todos-table th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    
+    .todo-row.completed {
+        background-color: #f9f9f9;
+    }
+    
+    .todo-title-cell {
+        max-width: 300px;
+    }
+    
+    .todo-description {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-badge.completed {
+        background-color: #e6ffe6;
+        color: #006400;
+    }
+    
+    .status-badge.pending {
+        background-color: #fff0e0;
+        color: #884400;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const todoRows = document.querySelectorAll('.todo-row');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active button
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                
+                // Filter the rows
+                todoRows.forEach(row => {
+                    if (filter === 'all') {
+                        row.style.display = '';
+                    } else if (filter === 'pending' && !row.classList.contains('completed')) {
+                        row.style.display = '';
+                    } else if (filter === 'completed' && row.classList.contains('completed')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<%- include('./partials/footer') %>

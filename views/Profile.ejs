@@ -1,41 +1,119 @@
 <%- include('./partials/header') %>
 
 <div class="profile-container">
-    <h1>User Profile</h1>
+    <h1>My Todos</h1>
     
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-avatar">
-                <i class="fas fa-user-circle"></i>
-            </div>
-            <h2><%= user.navn %></h2>
-            <p class="profile-email"><%= user.epost %></p>
+    <div class="user-info">
+        <p>Welcome, <%= user.navn %></p>
+        <div class="actions">
+            <a href="/" class="btn">Today's Todos</a>
+            <a href="/change-password" class="btn">Change Password</a>
             <% if (user.isAdmin) { %>
-                <span class="admin-badge">Admin</span>
+                <a href="/all-todos" class="btn btn-primary">View All Todos</a>
             <% } %>
         </div>
+    </div>
+    
+    <div class="todos-list-container">
+        <h2>Your Recent Todos</h2>
         
-        <div class="profile-stats">
-            <div class="stat-box">
-                <span class="stat-number"><%= stats.totalTodos %></span>
-                <span class="stat-label">Total Todos</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-number"><%= stats.completedTodos %></span>
-                <span class="stat-label">Completed</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-number"><%= stats.pendingTodos %></span>
-                <span class="stat-label">Pending</span>
-            </div>
-        </div>
-        
-        <div class="profile-actions">
-            <a href="/" class="btn btn-primary">My Todos</a>
-            <a href="/change-password" class="btn">Change Password</a>
-            <a href="/logout" class="btn btn-danger">Logout</a>
-        </div>
+        <% if (todos.length === 0) { %>
+            <p>You don't have any todos yet. <a href="/">Create one now!</a></p>
+        <% } else { %>
+            <ul class="todo-list profile-todo-list">
+                <% todos.forEach(todo => { %>
+                    <li class="todo-item <%= todo.completed ? 'completed' : '' %>">
+                        <div class="todo-text">
+                            <div class="todo-header">
+                                <h3 class="todo-title"><%= todo.title %></h3>
+                                <span class="todo-date"><%= new Date(todo.date).toLocaleDateString() %></span>
+                            </div>
+                            <% if (todo.description) { %>
+                                <p class="todo-description"><%= todo.description %></p>
+                            <% } %>
+                        </div>
+                        <div class="todo-status">
+                            <span class="status-badge <%= todo.completed ? 'completed' : 'pending' %>">
+                                <%= todo.completed ? 'Completed' : 'Pending' %>
+                            </span>
+                        </div>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
     </div>
 </div>
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .user-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .profile-todo-list {
+        margin-top: 20px;
+    }
+    
+    .todo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .todo-date {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-badge.completed {
+        background-color: #e6ffe6;
+        color: #006400;
+    }
+    
+    .status-badge.pending {
+        background-color: #fff0e0;
+        color: #884400;
+    }
+    
+    .todo-item {
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    
+    .todo-item.completed {
+        background-color: #f9f9f9;
+    }
+    
+    .todo-item.completed .todo-title {
+        text-decoration: line-through;
+    }
+</style>
 
 <%- include('./partials/footer') %>

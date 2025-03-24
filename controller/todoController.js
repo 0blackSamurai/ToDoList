@@ -7,20 +7,19 @@ exports.getTodosByDate = async (req, res) => {
         const dateParam = req.params.date;
         
         // If no date provided, use today
-       // If no date provided, use today
-let targetDate;
-if (dateParam) {
-    const parsedDate = new Date(dateParam);
-    if (!isNaN(parsedDate.getTime())) {
-        // Valid date
-        targetDate = parsedDate;
-    } else {
-        // Invalid date, use today
-        targetDate = new Date();
-    }
-} else {
-    targetDate = new Date();
-}
+        let targetDate;
+        if (dateParam) {
+            const parsedDate = new Date(dateParam);
+            if (!isNaN(parsedDate.getTime())) {
+                // Valid date
+                targetDate = parsedDate;
+            } else {
+                // Invalid date, use today
+                targetDate = new Date();
+            }
+        } else {
+            targetDate = new Date();
+        }
         
         // Set time to midnight for date comparison
         targetDate.setHours(0, 0, 0, 0);
@@ -66,6 +65,23 @@ if (dateParam) {
     } catch (error) {
         console.error('Error fetching todos:', error);
         res.status(500).send('Error fetching todo list');
+    }
+};
+
+// Get all todos for the current user (API endpoint)
+exports.getAllTodos = async (req, res) => {
+    try {
+        const userId = req.user.Userid;
+        
+        // Find all todos for this user
+        const todos = await Todo.find({
+            user: userId
+        }).sort({ date: 1, completed: 1 });
+        
+        res.json(todos);
+    } catch (error) {
+        console.error('Error fetching all todos:', error);
+        res.status(500).json({ error: 'Error fetching todos' });
     }
 };
 

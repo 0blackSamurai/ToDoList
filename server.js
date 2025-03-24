@@ -10,10 +10,10 @@ const todoRoutes = require('./routes/todoRoutes');
 const { checkAuth } = require('./middleware/authMiddleware');
 
 const app = express();
-const profileRoutes = require('./routes/profileRoutes');
+// const profileRoutes = require('./routes/profileRoutes');
 
 // And add this with your other app.use statements
-app.use('/', profileRoutes);
+
 
 // Set up middleware
 app.use(express.urlencoded({ extended: true }));
