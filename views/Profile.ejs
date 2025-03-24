@@ -1,0 +1,41 @@
+<%- include('./partials/header') %>
+
+<div class="profile-container">
+    <h1>User Profile</h1>
+    
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2><%= user.navn %></h2>
+            <p class="profile-email"><%= user.epost %></p>
+            <% if (user.isAdmin) { %>
+                <span class="admin-badge">Admin</span>
+            <% } %>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="stat-box">
+                <span class="stat-number"><%= stats.totalTodos %></span>
+                <span class="stat-label">Total Todos</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number"><%= stats.completedTodos %></span>
+                <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number"><%= stats.pendingTodos %></span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="/" class="btn btn-primary">My Todos</a>
+            <a href="/change-password" class="btn">Change Password</a>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>

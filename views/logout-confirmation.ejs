@@ -1,0 +1,16 @@
+<%- include('./partials/header') %>
+
+<div class="auth-container">
+    <div class="auth-form">
+        <h2><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
+        
+        <p>Are you sure you want to log out?</p>
+        
+        <div class="confirm-actions">
+            <a href="/logout" class="btn btn-danger">Yes, Log Out</a>
+            <a href="javascript:history.back()" class="btn">No, Go Back</a>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>

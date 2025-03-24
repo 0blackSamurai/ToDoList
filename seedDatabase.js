@@ -2,7 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./models/userModel');
-const Todo = require('./models/todoModel');
+const Todo = require('./models/TodoModel');
 
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URL)

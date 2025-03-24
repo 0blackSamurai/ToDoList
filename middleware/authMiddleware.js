@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
 function isAuthenticated(req, res, next) {
-    const token = req.cookies.User;
+    // Check if req.cookies exists before trying to access properties
+    const token = req.cookies ? req.cookies.User : null;
 
     if (!token) {
         return res.redirect("/sign-in");

@@ -1,4 +1,4 @@
-const Todo = require('../models/TodoModel');
+const Todo = require("../models/TodoModel.js")
 
 // Get todos for a specific date for the logged-in user
 exports.getTodosByDate = async (req, res) => {
@@ -7,12 +7,20 @@ exports.getTodosByDate = async (req, res) => {
         const dateParam = req.params.date;
         
         // If no date provided, use today
-        let targetDate;
-        if (dateParam) {
-            targetDate = new Date(dateParam);
-        } else {
-            targetDate = new Date();
-        }
+       // If no date provided, use today
+let targetDate;
+if (dateParam) {
+    const parsedDate = new Date(dateParam);
+    if (!isNaN(parsedDate.getTime())) {
+        // Valid date
+        targetDate = parsedDate;
+    } else {
+        // Invalid date, use today
+        targetDate = new Date();
+    }
+} else {
+    targetDate = new Date();
+}
         
         // Set time to midnight for date comparison
         targetDate.setHours(0, 0, 0, 0);
@@ -51,6 +59,7 @@ exports.getTodosByDate = async (req, res) => {
             currentDate: formattedDate,
             prevDate: formattedPrevDate,
             nextDate: formattedNextDate,
+            isAuthenticated: req.isAuthenticated,
             isToday
         });
         

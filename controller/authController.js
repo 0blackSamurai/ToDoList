@@ -50,7 +50,8 @@ exports.login = async (req, res) => {
         if (!user) {
             return res.render('sign-in', { 
                 title: 'Sign In',
-                feedback: 'User not found'
+                feedback: 'User not found',
+                isAuthenticated: req.isAuthenticated
             });
         }
 
@@ -80,6 +81,13 @@ exports.logout = (req, res) => {
     res.clearCookie('User'); 
     res.redirect("/");
 };  
+// Add this to the existing authController.js
+exports.renderLogoutConfirmation = (req, res) => {
+    res.render('logout-confirmation', {
+         title: 'Confirm Logout', 
+        isAuthenticated: req.isAuthenticated });
+
+};
 
 exports.renderSignUp = (req, res) => {
     // If user is already logged in, redirect to home
