@@ -1,0 +1,37 @@
+<%- include('./partials/header') %>
+
+<div class="auth-container">
+    <form action="/sign-up" method="POST" class="auth-form">
+        <h2>Sign Up</h2>
+        
+        <% if (locals.feedback) { %>
+            <div class="feedback-field" role="alert">
+                <%= feedback %>
+            </div>
+        <% } %>
+        
+        <div class="form-group">
+            <input type="text" id="navn" name="navn" placeholder="Name" required aria-label="Name">
+        </div>
+        
+        <div class="form-group">
+            <input type="email" id="epost" name="epost" placeholder="Email" required aria-label="Email">
+        </div>
+        
+        <div class="form-group">
+            <input type="password" id="passord" name="passord" placeholder="Password" required aria-label="Password">
+        </div>
+        
+        <div class="form-group">
+            <input type="password" id="confirmpassord" name="confirmpassord" placeholder="Confirm Password" required aria-label="Confirm Password">
+        </div>
+        
+        <button type="submit">Sign Up!</button>
+        
+        <p class="auth-link">
+            Already have an account? <a href="/sign-in">Sign In</a>
+        </p>
+    </form>
+</div>
+
+<%- include('./partials/footer') %>
