@@ -5,9 +5,7 @@ exports.getTodosByDate = async (req, res) => {
     try {
         const userId = req.user.Userid;
         const dateParam = req.params.date;
-        
-        // If no date provided, use today
-        let targetDate;
+        let targetDate = dateParam ? new Date(dateParam) : new Date();
         if (dateParam) {
             const parsedDate = new Date(dateParam);
             if (!isNaN(parsedDate.getTime())) {
@@ -22,7 +20,7 @@ exports.getTodosByDate = async (req, res) => {
         }
         
         // Set time to midnight for date comparison
-        targetDate.setHours(0, 0, 0, 0);
+        targetDate.setUTCHours(0, 0, 0, 0);
         
         // Find next day
         const nextDay = new Date(targetDate);
@@ -52,6 +50,9 @@ exports.getTodosByDate = async (req, res) => {
         today.setHours(0, 0, 0, 0);
         const isToday = targetDate.getTime() === today.getTime();
         
+        // Calculate week number and create week data
+        const weekData = await getWeekData(userId, targetDate);
+        
         res.render('todo', {
             title: isToday ? "Today's To-Do List" : `To-Do List for ${formattedDate}`,
             todos,
@@ -59,7 +60,10 @@ exports.getTodosByDate = async (req, res) => {
             prevDate: formattedPrevDate,
             nextDate: formattedNextDate,
             isAuthenticated: req.isAuthenticated,
-            isToday
+            isToday,
+            weekNumber: weekData.weekNumber,
+            weekYear: weekData.weekYear,
+            weekDays: weekData.weekDays
         });
         
     } catch (error) {
@@ -67,6 +71,87 @@ exports.getTodosByDate = async (req, res) => {
         res.status(500).send('Error fetching todo list');
     }
 };
+
+// Helper function to get week data
+// Helper function to get week data
+async function getWeekData(userId, targetDate) {
+    // Create a new date object to avoid modifying the original
+    const targetDateObj = new Date(targetDate);
+    
+    // Get the first day of the week (Monday)
+    const firstDayOfWeek = new Date(targetDateObj);
+firstDayOfWeek.setDate(firstDayOfWeek.getDate() - ((firstDayOfWeek.getDay() + 6) % 7));
+firstDayOfWeek.setHours(0, 0, 0, 0); 
+    
+    // Get the week number
+    const firstDayOfYear = new Date(firstDayOfWeek.getFullYear(), 0, 1);
+    const pastDaysOfYear = (firstDayOfWeek - firstDayOfYear) / 86400000;
+    const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    
+    // Create data for each day of the week
+    const weekDays = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Get todo counts for the whole week
+    const weekStart = new Date(firstDayOfWeek);
+    const weekEnd = new Date(firstDayOfWeek);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    
+    // Find all todos for this week
+    const weekTodos = await Todo.find({
+        user: userId,
+        date: {
+            $gte: weekStart,
+            $lt: weekEnd
+        }
+    });
+    
+    // Count todos by date
+    const todoCountsByDate = {};
+    weekTodos.forEach(todo => {
+        const todoDate = new Date(todo.date);
+        todoDate.setHours(0, 0, 0, 0);
+        const dateKey = todoDate.toISOString().split('T')[0];
+        
+        if (!todoCountsByDate[dateKey]) {
+            todoCountsByDate[dateKey] = 0;
+        }
+        
+        todoCountsByDate[dateKey]++;
+    });
+    
+    // Create day data with correct date display
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    for (let i = 0; i < 7; i++) {
+        // Create a completely new date object for each day of the week
+        const currentDate = new Date(firstDayOfWeek);
+        currentDate.setDate(firstDayOfWeek.getDate() + i);
+        
+        // Ensure time is set to midnight
+        currentDate.setHours(0, 0, 0, 0);
+        
+        // Format date for URL and comparison
+        const dateKey = currentDate.toISOString().split('T')[0];
+        
+        // Push the day data to the weekDays array
+        weekDays.push({
+            date: dateKey,
+            weekdayShort: dayNames[currentDate.getDay()],
+            dayNumber: currentDate.getDate(),
+            isToday: currentDate.getTime() === today.getTime(),
+            isCurrentDay: currentDate.getTime() === targetDateObj.getTime(),
+            todoCount: todoCountsByDate[dateKey] || 0
+        });
+    }
+    
+    return {
+        weekNumber,
+        weekYear: firstDayOfWeek.getFullYear(),
+        weekDays
+    };
+}
 
 // Get all todos for the current user (API endpoint)
 exports.getAllTodos = async (req, res) => {

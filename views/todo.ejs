@@ -12,6 +12,30 @@
     </a>
 </div>
 
+<!-- Week Navigation -->
+<div class="week-navigation">
+    <div class="week-controls">
+        <button id="prev-week" class="btn btn-small">
+            <i class="fas fa-chevron-left"></i> Previous Week
+        </button>
+        <span id="week-display">Week <%= weekNumber %>, <%= weekYear %></span>
+        <button id="next-week" class="btn btn-small">
+            Next Week <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    
+    <div class="weekday-selector">
+        <% weekDays.forEach(day => { %>
+            <a href="/<%= day.date %>" class="weekday-item <%= day.isCurrentDay ? 'current-day' : '' %> <%= day.isToday ? 'today' : '' %>">
+                <div class="weekday-name"><%= day.weekdayShort %></div>
+                <div class="weekday-date"><%= day.dayNumber %></div>
+                <div class="weekday-todo-count"><%= day.todoCount || '' %></div>
+                <div class="weekday-debug" style="display: none;"><%= day.date %></div>
+            </a>
+        <% }) %>
+    </div>
+</div>
+
 <form class="todo-form" action="/todo" method="POST">
     <h2>Add New Todo</h2>
     
@@ -32,6 +56,8 @@
     
     <button type="submit" class="btn">Add Todo</button>
 </form>
+
+<!-- Rest of your existing code remains the same -->
 
 <div class="todos-container">
     <div class="todos-header">
@@ -219,6 +245,28 @@ const scriptContent = `
                 showAllTodosBtn.textContent = 'Show All Todos';
             }
         });
+        // Add this to the existing script in todo.ejs before the closing script tag
+// Inside your existing <script> block:
+
+// Week navigation
+const prevWeekBtn = document.getElementById('prev-week');
+const nextWeekBtn = document.getElementById('next-week');
+
+prevWeekBtn.addEventListener('click', function() {
+    // Calculate date for the previous week
+    const currentDate = new Date(document.getElementById('date').value);
+    currentDate.setDate(currentDate.getDate() - 7);
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    window.location.href = '/' + formattedDate;
+});
+
+nextWeekBtn.addEventListener('click', function() {
+    // Calculate date for the next week
+    const currentDate = new Date(document.getElementById('date').value);
+    currentDate.setDate(currentDate.getDate() + 7);
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    window.location.href = '/' + formattedDate;
+});
         
         // Filter buttons for all todos
         const filterButtons = document.querySelectorAll('.filter-btn');
@@ -370,5 +418,6 @@ const scriptContent = `
 </script>
 `;
 %>
+
 
 <%- include('./partials/footer', { scripts: scriptContent }) %>

@@ -11,7 +11,99 @@
     color: #333;
     background-color: #f9f9f9;
   }
+  .week-navigation {
+    margin-bottom: 2rem;
+    background-color: #f5f7f9;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
   
+  .week-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e1e5ea;
+  }
+  
+  #week-display {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .weekday-selector {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+  }
+  
+  .weekday-item {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 2px;
+    color: #333;
+    transition: background-color 0.2s;
+  }
+  
+  .weekday-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .weekday-item.current-day {
+    background-color: #e6f0ff;
+  }
+  
+  .weekday-item.today {
+    font-weight: bold;
+    border: 1px solid #4a90e2;
+  }
+  
+  .weekday-name {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #647c97;
+    margin-bottom: 0.25rem;
+  }
+  
+  .weekday-date {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .weekday-todo-count {
+    font-size: 0.75rem;
+    background-color: #4a90e2;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+  }
+  
+  /* Responsive adjustments for week navigation */
+  @media (max-width: 768px) {
+    .weekday-name {
+      font-size: 0.7rem;
+    }
+    
+    .weekday-date {
+      font-size: 1rem;
+    }
+    
+    .weekday-todo-count {
+      font-size: 0.65rem;
+      width: 18px;
+      height: 18px;
+    }
+  }
   a {
     text-decoration: none;
     color: #333;
