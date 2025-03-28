@@ -26,7 +26,7 @@
     
     <div class="weekday-selector">
         <% weekDays.forEach(day => { %>
-            <a href="/<%= day.date %>" class="weekday-item <%= day.isCurrentDay ? 'current-day' : '' %> <%= day.isToday ? 'today' : '' %>">
+            <a href="/<%= day.date%>" class="weekday-item <%= day.isCurrentDay ? 'current-day' : '' %> <%= day.isToday ? 'today' : '' %>">
                 <div class="weekday-name"><%= day.weekdayShort %></div>
                 <div class="weekday-date"><%= day.dayNumber %></div>
                 <div class="weekday-todo-count"><%= day.todoCount || '' %></div>
@@ -245,28 +245,34 @@ const scriptContent = `
                 showAllTodosBtn.textContent = 'Show All Todos';
             }
         });
-        // Add this to the existing script in todo.ejs before the closing script tag
-// Inside your existing <script> block:
+        
+        // Week navigation
+        const prevWeekBtn = document.getElementById('prev-week');
+        const nextWeekBtn = document.getElementById('next-week');
 
-// Week navigation
-const prevWeekBtn = document.getElementById('prev-week');
-const nextWeekBtn = document.getElementById('next-week');
+        prevWeekBtn.addEventListener('click', function() {
+            const dateValue = document.getElementById('date').value;
+            // Parse date components to prevent timezone issues
+            const [year, month, day] = dateValue.split('-').map(Number);
+            const currentDate = new Date(year, month - 1, day);
+            currentDate.setDate(currentDate.getDate() - 7);
+            
+            // Format date as YYYY-MM-DD
+            const formattedDate = currentDate.toISOString().slice(0, 10);
+            window.location.href = '/' + formattedDate;
+        });
 
-prevWeekBtn.addEventListener('click', function() {
-    // Calculate date for the previous week
-    const currentDate = new Date(document.getElementById('date').value);
-    currentDate.setDate(currentDate.getDate() - 7);
-    const formattedDate = currentDate.toISOString().split('T')[0];
-    window.location.href = '/' + formattedDate;
-});
-
-nextWeekBtn.addEventListener('click', function() {
-    // Calculate date for the next week
-    const currentDate = new Date(document.getElementById('date').value);
-    currentDate.setDate(currentDate.getDate() + 7);
-    const formattedDate = currentDate.toISOString().split('T')[0];
-    window.location.href = '/' + formattedDate;
-});
+        nextWeekBtn.addEventListener('click', function() {
+            const dateValue = document.getElementById('date').value;
+            // Parse date components to prevent timezone issues
+            const [year, month, day] = dateValue.split('-').map(Number);
+            const currentDate = new Date(year, month - 1, day);
+            currentDate.setDate(currentDate.getDate() + 7);
+            
+            // Format date as YYYY-MM-DD
+            const formattedDate = currentDate.toISOString().slice(0, 10);
+            window.location.href = '/' + formattedDate;
+        });
         
         // Filter buttons for all todos
         const filterButtons = document.querySelectorAll('.filter-btn');

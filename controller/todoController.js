@@ -2,53 +2,53 @@ const Todo = require("../models/TodoModel.js")
 
 // Get todos for a specific date for the logged-in user
 exports.getTodosByDate = async (req, res) => {
+    console.log("getTodosByDate", req.params.date);
     try {
         const userId = req.user.Userid;
         const dateParam = req.params.date;
-        let targetDate = dateParam ? new Date(dateParam) : new Date();
+        let targetDate;
+        
         if (dateParam) {
-            const parsedDate = new Date(dateParam);
-            if (!isNaN(parsedDate.getTime())) {
-                // Valid date
-                targetDate = parsedDate;
-            } else {
-                // Invalid date, use today
-                targetDate = new Date();
-            }
+            // Parse date using explicit year, month, day and set to noon to avoid timezone issues
+            const [year, month, day] = dateParam.split('-').map(Number);
+            targetDate = new Date(year, month - 1, day, 12, 0, 0); 
         } else {
-            targetDate = new Date();
+            // Create today's date at noon
+            const now = new Date();
+            targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
         }
         
-        // Set time to midnight for date comparison
-        targetDate.setUTCHours(0, 0, 0, 0);
+        // Create start of day for database query (midnight)
+        const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 0, 0, 0, 0);
         
-        // Find next day
-        const nextDay = new Date(targetDate);
+        // Create end of day (next day at midnight)
+        const nextDay = new Date(startOfDay);
         nextDay.setDate(nextDay.getDate() + 1);
         
         // Find todos for this user on the target date
         const todos = await Todo.find({
             user: userId,
             date: {
-                $gte: targetDate,
+                $gte: startOfDay,
                 $lt: nextDay
             }
         }).sort({ completed: 1, date: 1 });
         
-        // Format date for display
-        const formattedDate = targetDate.toISOString().split('T')[0];
+        // Format date consistently for display
+        const formattedDate = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
         
         // Calculate previous and next dates for navigation
         const prevDate = new Date(targetDate);
         prevDate.setDate(prevDate.getDate() - 1);
-        const formattedPrevDate = prevDate.toISOString().split('T')[0];
+        const formattedPrevDate = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}-${String(prevDate.getDate()).padStart(2, "0")}`;
         
-        const formattedNextDate = nextDay.toISOString().split('T')[0];
+        const formattedNextDate = `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, "0")}-${String(nextDay.getDate()).padStart(2, "0")}`;
         
         // Is the target date today?
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const isToday = targetDate.getTime() === today.getTime();
+        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
+        const isToday = startOfDay.getTime() === startOfToday.getTime();
         
         // Calculate week number and create week data
         const weekData = await getWeekData(userId, targetDate);
@@ -73,15 +73,16 @@ exports.getTodosByDate = async (req, res) => {
 };
 
 // Helper function to get week data
-// Helper function to get week data
 async function getWeekData(userId, targetDate) {
     // Create a new date object to avoid modifying the original
     const targetDateObj = new Date(targetDate);
     
     // Get the first day of the week (Monday)
     const firstDayOfWeek = new Date(targetDateObj);
-firstDayOfWeek.setDate(firstDayOfWeek.getDate() - ((firstDayOfWeek.getDay() + 6) % 7));
-firstDayOfWeek.setHours(0, 0, 0, 0); 
+    const day = firstDayOfWeek.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const diff = firstDayOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    firstDayOfWeek.setDate(diff);
+    firstDayOfWeek.setHours(0, 0, 0, 0);
     
     // Get the week number
     const firstDayOfYear = new Date(firstDayOfWeek.getFullYear(), 0, 1);
@@ -107,12 +108,11 @@ firstDayOfWeek.setHours(0, 0, 0, 0);
         }
     });
     
-    // Count todos by date
+    // Count todos by date - using consistent date formatting
     const todoCountsByDate = {};
     weekTodos.forEach(todo => {
         const todoDate = new Date(todo.date);
-        todoDate.setHours(0, 0, 0, 0);
-        const dateKey = todoDate.toISOString().split('T')[0];
+        const dateKey = `${todoDate.getFullYear()}-${String(todoDate.getMonth() + 1).padStart(2, "0")}-${String(todoDate.getDate()).padStart(2, "0")}`;
         
         if (!todoCountsByDate[dateKey]) {
             todoCountsByDate[dateKey] = 0;
@@ -129,11 +129,8 @@ firstDayOfWeek.setHours(0, 0, 0, 0);
         const currentDate = new Date(firstDayOfWeek);
         currentDate.setDate(firstDayOfWeek.getDate() + i);
         
-        // Ensure time is set to midnight
-        currentDate.setHours(0, 0, 0, 0);
-        
-        // Format date for URL and comparison
-        const dateKey = currentDate.toISOString().split('T')[0];
+        // Format date for URL and comparison using consistent method
+        const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
         
         // Push the day data to the weekDays array
         weekDays.push({
@@ -141,7 +138,9 @@ firstDayOfWeek.setHours(0, 0, 0, 0);
             weekdayShort: dayNames[currentDate.getDay()],
             dayNumber: currentDate.getDate(),
             isToday: currentDate.getTime() === today.getTime(),
-            isCurrentDay: currentDate.getTime() === targetDateObj.getTime(),
+            isCurrentDay: currentDate.getDate() === targetDateObj.getDate() && 
+                          currentDate.getMonth() === targetDateObj.getMonth() && 
+                          currentDate.getFullYear() === targetDateObj.getFullYear(),
             todoCount: todoCountsByDate[dateKey] || 0
         });
     }
