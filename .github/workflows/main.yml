@@ -3,7 +3,7 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main  # or whichever branch you'd like to trigger deployment from
+      - main  # Trigger deployment on push to the main branch
 
 jobs:
   deploy:
@@ -13,14 +13,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH key for server access
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # You need to store your private SSH key in GitHub secrets
-
-    - name: Deploy to server
+    - name: Install dependencies and restart PM2
       run: |
-        ssh -o StrictHostKeyChecking=no user@your-server-ip "cd /var/www/ToDoList && git pull && pm2 restart all"
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        cd /var/www/ToDoList
+        git pull
+        pm2 restart all
 
